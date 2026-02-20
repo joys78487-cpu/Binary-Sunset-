@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tatooine Binary Sunset</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #050208;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        canvas {
+            border: 2px solid #222;
+            box-shadow: 0 0 100px rgba(230, 126, 34, 0.2);
+            background-color: #000;
+        }
+        .ir-badge {
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #e67e22;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            z-index: 1000;
+            pointer-events: none;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ir-badge">
+    <h1>Tatooine Binary Sunset</h1></div> 
+<canvas id="tatooineCanvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('tatooineCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 800;
+    canvas.height = 400;
+
+    // Initial Y positions for the suns
+    let sun1Y = 150; 
+    let sun2Y = 230;
+    
+    // Very slow downward velocity
+    const speed = 0.03; 
+
+    function drawSky() {
+        const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.7);
+        skyGradient.addColorStop(0, '#3b1d5c'); 
+        skyGradient.addColorStop(0.5, '#8e44ad'); 
+        skyGradient.addColorStop(0.8, '#d35400'); 
+        skyGradient.addColorStop(1, '#e67e22');   
+        
+        ctx.fillStyle = skyGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawSun(x, y, radius, color, glowColor) {
+        ctx.save();
+        // Atmospheric glow
+        ctx.shadowBlur = 40;
+        ctx.shadowColor = glowColor;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function drawForeground() {
+        // Ground and Farm silhouette
+        ctx.fillStyle = '#0a0500'; 
+        
+        // The Ground
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height * 0.7);
+        ctx.lineTo(400, canvas.height * 0.71);
+        ctx.lineTo(canvas.width, canvas.height * 0.7);
+        ctx.lineTo(canvas.width, canvas.height);
+        ctx.lineTo(0, canvas.height);
+        ctx.fill();
+
+        // The Dome (Homestead)
+        ctx.beginPath();
+        ctx.arc(165, canvas.height * 0.72, 110, Math.PI, 0); 
+        ctx.fill();
+
+        // Luke's Silhouette
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(460, 260, 10, 35); // Body
+        ctx.beginPath();
+        ctx.arc(465, 255, 5, 0, Math.PI * 2); // Head
+        ctx.fill();
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 1. Draw the Sky
+        drawSky();
+
+        // 2. Draw the Suns (they move down every frame)
+        // We draw them before the foreground so they "sink" behind the land
+        drawSun(630, sun1Y, 18, '#ffffff', 'rgba(255, 255, 255, 0.4)');
+        drawSun(670, sun2Y, 22, '#ff4e00', 'rgba(255, 78, 0, 0.5)');
+
+        // 3. Draw the Foreground (over the suns)
+        drawForeground();
+
+        // Increment position slowly
+        sun1Y += speed;
+        sun2Y += speed;
+
+        // Reset positions if they go too far (looping the sunset)
+        if (sun1Y > canvas.height + 50) {
+            sun1Y = 150;
+            sun2Y = 230;
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+</script>
+</body>
+</html>
